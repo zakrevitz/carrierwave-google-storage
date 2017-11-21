@@ -1,9 +1,10 @@
 module CarrierWave
   module Storage
     class GcloudFile
-    
+      GCLOUD_STORAGE_URL = "https://storage.googleapis.com".freeze
+
       attr_writer :file
-      attr_accessor :uploader, :connection, :path, 
+      attr_accessor :uploader, :connection, :path,
         :gcloud_options, :file_exists
 
       delegate :content_type, :size, to: :file
@@ -17,12 +18,12 @@ module CarrierWave
         @file
       end
       alias_method :to_file, :file
-      
+
       def retrieve
         by_verifying_existence { @file ||= bucket.file(path) }
         self
       end
-      
+
       def by_verifying_existence(&block)
         begin
           self.file_exists = true
@@ -41,13 +42,13 @@ module CarrierWave
           etag: file.etag
         }
       end
-      
+
       def delete
         deleted = file.delete
         self.file_exists = false if deleted
         deleted
       end
-      
+
       def exists?
         self.file_exists
       end
@@ -67,8 +68,7 @@ module CarrierWave
       end
 
       def store(new_file)
-        new_file_path = uploader.filename ?  uploader.filename : new_file.filename
-        # bucket.create_file new_file.path, "#{uploader.store_dir}/#{new_file_path}" 
+        new_file_path = uploader.filename ? uploader.filename : new_file.filename
         bucket.create_file new_file.path, path, content_type: new_file.content_type
         self
       end
@@ -81,25 +81,24 @@ module CarrierWave
         return unless file_exists
         uploader.gcloud_bucket_is_public ? public_url : authenticated_url
       end
-      
+
       def authenticated_url(options = {})
-        file.signed_url
+        bucket.signed_url(@path, options)
       end
 
       def public_url
         if uploader.asset_host
           "#{uploader.asset_host}/#{path}"
         else
-          file.public_url.to_s
+          "#{GCLOUD_STORAGE_URL}/#{uploader.gcloud_bucket}/#{@path}"
         end
       end
 
       private
 
       def bucket
-        bucket ||= connection.bucket(uploader.gcloud_bucket)
+        @bucket ||= connection.bucket(uploader.gcloud_bucket)
       end
-
     end
   end
 end
