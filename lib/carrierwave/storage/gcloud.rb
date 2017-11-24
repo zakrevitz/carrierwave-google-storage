@@ -16,7 +16,7 @@ module CarrierWave
       end
 
       def retrieve!(identifier)
-        GcloudFile.new(uploader, connection, uploader.store_path(identifier)).retrieve
+        GcloudFile.new(uploader, connection, uploader.store_path(identifier))
       end
 
       def cache!(file)
@@ -40,7 +40,7 @@ module CarrierWave
           conn_cache[credentials] ||= ::Google::Cloud.new(
             credentials[:gcloud_project] || ENV['GCLOUD_PROJECT'],
             credentials[:gcloud_keyfile] || ENV['GCLOUD_KEYFILE']
-          ).storage
+          ).storage.bucket(uploader.gcloud_bucket)
         end
       end
 
