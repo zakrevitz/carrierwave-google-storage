@@ -21,7 +21,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'carrierwave', '~> 1.2.0'
-  spec.add_dependency 'google-cloud-storage', '~> 1.9.0'
+  spec.add_dependency 'google-cloud-storage', '~> 1.10.0'
 
   spec.add_development_dependency 'bundler', '~> 1.12'
   spec.add_development_dependency 'pry', '~> 0.10.3'
