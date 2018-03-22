@@ -59,11 +59,16 @@ module CarrierWave
 
       def store(new_file)
         new_file_path = uploader.filename ? uploader.filename : new_file.filename
-        bucket.create_file(
+        remote_file = bucket.create_file(
           new_file.path,
           path,
           gcloud_options.write_options(new_file)
         )
+
+        if uploader.add_all_users_to_reader_group
+          remote_file.acl.add_reader 'allUsers'
+        end
+
         self
       end
 
