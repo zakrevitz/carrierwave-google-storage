@@ -11,9 +11,16 @@ module CarrierWave
         gcloud_read_options
       end
 
+      def write_options(new_file)
+        {
+          acl: uploader.gcloud_acl,
+          content_type: new_file.content_type
+        }.merge(gcloud_write_options)
+      end
+
       def expiration_options(options = {})
         uploader_expiration = uploader.gcloud_authenticated_url_expiration
-        { expires_in: uploader_expiration }.merge(options)
+        { expires: uploader_expiration }.merge(options)
       end
 
       private

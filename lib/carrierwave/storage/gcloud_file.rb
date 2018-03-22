@@ -3,7 +3,7 @@
 module CarrierWave
   module Storage
     class GcloudFile
-      GCLOUD_STORAGE_URL = 'https://storage.googleapis.com'
+      GCLOUD_STORAGE_URL = 'https://storage.googleapis.com'.freeze
 
       attr_writer :file
       attr_accessor :uploader, :connection, :path, :gcloud_options, :file_exists
@@ -11,9 +11,10 @@ module CarrierWave
       delegate :content_type, :size, to: :file
 
       def initialize(uploader, connection, path)
-        @uploader   = uploader
+        @uploader = uploader
         @connection = connection
-        @path       = path
+        @path = path
+        @gcloud_options = GcloudOptions.new(uploader)
       end
 
       def file
@@ -59,7 +60,9 @@ module CarrierWave
       def store(new_file)
         new_file_path = uploader.filename ? uploader.filename : new_file.filename
         bucket.create_file(
-          new_file.path, path, content_type: new_file.content_type
+          new_file.path,
+          path,
+          gcloud_options.write_options(new_file)
         )
         self
       end
@@ -68,12 +71,12 @@ module CarrierWave
         file.copy("#{uploader.store_dir}/#{new_path}")
       end
 
-      def url(options = {})
-        uploader.gcloud_bucket_is_public ? public_url : authenticated_url
+      def url(opts = {})
+        uploader.gcloud_bucket_is_public ? public_url : authenticated_url(opts)
       end
 
       def authenticated_url(options = {})
-        bucket.signed_url(path, options)
+        bucket.signed_url(path, gcloud_options.expiration_options(options))
       end
 
       def public_url
