@@ -62,10 +62,10 @@ module CarrierWave
       end
 
       def self.gcloud_acl=(acl)
-        @gcloud_acl = normalized_acl(acl)
+        @gcloud_acl = normalized_gcloud_acl(acl)
       end
 
-      def self.normalized_acl(acl)
+      def self.normalized_gcloud_acl(acl)
         return if acl.nil?
         normalized = acl.to_s.gsub('-', '_')
 
@@ -77,7 +77,7 @@ module CarrierWave
       end
 
       def gcloud_acl=(acl)
-        @gcloud_acl = self.class.normalized_acl(acl)
+        @gcloud_acl = self.class.normalized_gcloud_acl(acl)
       end
     end
   end

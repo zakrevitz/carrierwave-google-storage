@@ -32,7 +32,7 @@ module CarrierWave
       end
 
       def delete
-        deleted = file.delete
+        deleted = exists? ? file.delete : true
         self.file_exists = false if deleted
         deleted
       end
@@ -51,6 +51,7 @@ module CarrierWave
       end
 
       def read
+        return '' unless exists?
         tmp_file = Tempfile.new(
           CarrierWave::Support::UriFilename.filename(file.name)
         )
